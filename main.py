@@ -8,11 +8,13 @@ def before(session):
     if not 'sid' in session: session['sid'] = str(uuid.uuid4())
 bware = Beforeware(before, skip=[r'/favicon/.ico', r'/static/.*', r'.*\.css', '/data/images/.*'])
 
-app = FastHTML(ws_hdr=True,
-                hdrs=(picolink,
-                    Link(rel="stylesheet", href="/style.css", type="text/css"),
+app = FastHTMLWithLiveReload(ws_hdr=True,
+                before=bware,
+                pico=False,
+                hdrs=(
+                    Script(src="https://cdn.tailwindcss.com"),
+                    Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/daisyui@4.11.1/dist/full.min.css"),
                     Script(src="autoscroll.js")),
-                    before=bware
                 )
 
 app.static_route_exts(static_path='.')
@@ -42,35 +44,41 @@ def home(session):
     if not user_logs[session['sid']]:
         return login_redir
 
-
-    inp = Input(id="prompt", name="msg", placeholder="Enter a guess")
     inpHidden = Input(type="hidden", id="prompt2", name="username", value=user_names[session['sid']])
     logname = P(user_names[session['sid']])
+    inp = Label(
+        Div(
+            Input(id="prompt", name="msg", placeholder='Enter a guess', cls='input input-bordered join-item grow'),
+            Button("Guess", cls="btn join-item"),
+            cls="join"
+        ),
+        cls='form-control'
+    )
 
-    return Body(
-                Div(
-                    Div(
-                        Img(src=f"static/img{random_int}.png"),
-                        id='pic',
-                        cls='block_1'
-                        ),
-                    Div(
-                        Div(
-                            id='guessLog',
-                            cls='block_2',
-                        ),
-                        Div(
-                            Form(Group(inp,inpHidden, Button('Guess')), ws_send=True),
-                                hx_ext='ws', ws_connect='ws',
-                                cls='guess-input'
-                        ),
-                        cls='wrapper_left-blocks'
-                    ),
-                    cls='main-wrapper',
-                ),
-            )
+    return Title("Drakoon"), Div(
+        H1("Guess the picture! What could it be?", cls="text-2xl font-bold pb-6"),
+        Div(
+            Img(src=f"static/img{random_int}.png", cls='rounded border border-2 border-gray-600'),
+            id='pic'
+        ),
+        Div(
+            Div(
+                Form(Group(inp,inpHidden), ws_send=True, cls=""),
+                hx_ext='ws', ws_connect='ws',
+                cls='pt-4 max-w-lg'
+            ),
+            Div(
+                id='guessLog',
+                cls='py-6',
+            ),
+            cls=''
+        ),
+        cls='mx-auto max-w-lg px-6 pt-20 rounded-box',
+    )
 
 def render_messages(messages):
+    # Reverse the messages list
+    messages = list(reversed(messages))
 
     # green for right guess , otherwise red
     colors=[]
@@ -83,7 +91,7 @@ def render_messages(messages):
     ]
     return Div(*paragraphs, 
                 id='guessLog',
-                cls='block_2',
+                cls='py-6',
                 style='text-align: left',
             )
 
@@ -91,7 +99,7 @@ def render_new_pic(img_path):
     return Div(
                 Img(src=img_path),
                 id='pic',
-                cls='block_1',
+                cls='rounded border border-2 border-gray-600',
                 hx_swap_oob="outerHTML"
             )
 
@@ -114,7 +122,6 @@ async def ws(msg:str,username:str, send):
         random_int = random.randint(1, 4)
         imgpath = f"static/img{random_int}.png"
         is_ok = True
-
     else:
         messages[-1] = f"{username} : {messages[-1]} guess not right"
 
@@ -123,19 +130,28 @@ async def ws(msg:str,username:str, send):
         if is_ok:
             await u(render_new_pic(imgpath))
 
-
 @app.get("/login")
 def login():
-    inpt = Input(id="log", name="logname", placeholder="Enter a name")
-    button = Button("Ok")
-    return Titled(P("Enter your name !"), Form(action='/login', method='post')(Group(inpt, button)))
+    inpt = Label(
+        Div(
+            Input(id="log", name="logname", placeholder='Enter your name', cls='input input-bordered w-full max-w-xs join-item'),
+            Button("OK", cls="btn join-item"),
+            cls="join"
+        ),
+        cls='form-control w-full max-w-xs'
+    )
+    return Title("Drakoon"), Div(H1('Enter your details to start...', cls="text-2xl font-bold pb-6"), Form(action='/login', method='post')(Group(inpt)), cls="mx-auto max-w-sm px-6 pt-20 rounded-box")
 
 @app.post("/login")
 def loginname(logname : str, session):
+    if not logname or logname.isspace():
+        # Return redirect to login page if blank
+        return login_redir
+
     # save name and register
     user_names[session['sid']] = logname
     user_logs[session['sid']] = True
 
     return RedirectResponse('/', status_code=303)
 
-serve()
+serve(reload_includes=["*.css"])
