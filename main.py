@@ -9,13 +9,13 @@ def before(session):
 bware = Beforeware(before, skip=[r'/favicon/.ico', r'/static/.*', r'.*\.css', '/data/images/.*'])
 
 app = FastHTMLWithLiveReload(ws_hdr=True,
-                before=bware,
-                pico=False,
-                hdrs=(
-                    Script(src="https://cdn.tailwindcss.com"),
-                    Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/daisyui@4.11.1/dist/full.min.css"),
-                    Script(src="autoscroll.js")),
-                )
+                            before=bware,
+                            pico=False,
+                            hdrs=(
+                                Script(src="https://cdn.tailwindcss.com"),
+                                Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/daisyui@4.11.1/dist/full.min.css"),
+                                Script(src="autoscroll.js")),
+                            )
 
 app.static_route_exts(static_path='.')
 
@@ -27,13 +27,15 @@ data = {"img1" : "plane",
 random_int = random.randint(1, 4)
 
 # All messages here, but only most recent 150 are stored
-messages = deque(maxlen=150)
+messages = deque(maxlen=12)
 users = {}
 user_logs = defaultdict(lambda: False)
 user_names = dict()
 
 login_redir = RedirectResponse('/login', status_code=303)
 
+#temp score
+score = 0
 
 @app.get("/")
 def home(session):
@@ -46,6 +48,7 @@ def home(session):
 
     inpHidden = Input(type="hidden", id="prompt2", name="username", value=user_names[session['sid']])
     logname = P(user_names[session['sid']])
+
     inp = Label(
         Div(
             Input(id="prompt", name="msg", placeholder='Enter a guess', cls='input input-bordered join-item grow'),
@@ -57,9 +60,19 @@ def home(session):
 
     return Title("Drakoon"), Div(
         H1("Guess the picture! What could it be?", cls="text-2xl font-bold pb-6"),
+        # Div(
+        #     Img(src=f"static/img{random_int}.png", cls='rounded border border-2 border-gray-600'),
+        #     id='pic'
+        # ),
         Div(
-            Img(src=f"static/img{random_int}.png", cls='rounded border border-2 border-gray-600'),
-            id='pic'
+            Div(
+                Img(src=f"static/img{random_int}.png", cls='rounded border border-2 border-gray-600'),
+                Div("Score: 0", id="score", cls='pl-4'),  # Added score div here
+                cls='flex items-left',  # Flex container to align image and score side by side
+                id='picins',
+            ),
+            id='pic',
+            cls='flex justify-center'  # Center the picture and score div within the parent container
         ),
         Div(
             Div(
@@ -95,12 +108,21 @@ def render_messages(messages):
                 style='text-align: left',
             )
 
-def render_new_pic(img_path):
+# def render_new_pic(img_path):
+#     return Div(
+#                 Img(src=img_path),
+#                 id='pic',
+#                 cls='rounded border border-2 border-gray-600',
+#                 hx_swap_oob="outerHTML"
+#             )
+
+def render_new_pic(img_path, score):
     return Div(
-                Img(src=img_path),
-                id='pic',
-                cls='rounded border border-2 border-gray-600',
-                hx_swap_oob="outerHTML"
+                Img(src=img_path, cls='rounded border border-2 border-gray-600'),
+                Div(f"Score: {score}", id="score", cls='pl-4'),  # Added score div here
+                cls='flex items-left',  # Flex container to align image and score side by side
+                hx_swap_oob="outerHTML",
+                id='picins',
             )
 
 def on_connect(ws, send): 
@@ -114,11 +136,13 @@ async def ws(msg:str,username:str, send):
     # await send(mk_input()) # reset the input field immediately
     messages.append(msg) 
     global random_int
+    global score
 
     is_ok = False
     # check guess
     if data[f'img{random_int}'] == msg:
         messages[-1] = f"{username} : {messages[-1]} guess right"
+        score += 1
         random_int = random.randint(1, 4)
         imgpath = f"static/img{random_int}.png"
         is_ok = True
@@ -128,7 +152,7 @@ async def ws(msg:str,username:str, send):
     for u in users.values():
         await u(render_messages(messages))
         if is_ok:
-            await u(render_new_pic(imgpath))
+            await u(render_new_pic(imgpath, score))
 
 @app.get("/login")
 def login():
@@ -140,7 +164,10 @@ def login():
         ),
         cls='form-control w-full max-w-xs'
     )
-    return Title("Drakoon"), Div(H1('Enter your details to start...', cls="text-2xl font-bold pb-6"), Form(action='/login', method='post')(Group(inpt)), cls="mx-auto max-w-sm px-6 pt-20 rounded-box")
+    return Title("Drakoon"), \
+            Div(H1('Enter your details to start...', cls="text-2xl font-bold pb-6"),
+                 Form(action='/login', method='post')(Group(inpt)),
+                 cls="mx-auto max-w-sm px-6 pt-20 rounded-box")
 
 @app.post("/login")
 def loginname(logname : str, session):
