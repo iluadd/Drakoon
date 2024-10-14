@@ -1,0 +1,42 @@
+.main-wrapper {
+  text-align: center;
+  height: 540px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.block_1 {
+  width: 50%;
+  border: 2px solid #000;
+}
+
+.wrapper_left-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  /* height: 500px; */
+  width: 50%;
+}
+.block_2 {
+  overflow-y: scroll;
+  height: 100%;
+  border: 2px solid #000;
+}
+
+.wrapper_button_block-3 {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.block_3 {
+  width: 100%;
+  border: 2px solid #000;
+}
+
+button {
+  padding: 20px 40px;
+  border: 2px solid #000;
+  background-color: #bd1e1e;
+}
