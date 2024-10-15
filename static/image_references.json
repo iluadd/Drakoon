@@ -1,0 +1,149 @@
+[
+  {
+    "animals": [
+      "mouse",
+      "leopard"
+    ],
+    "file_name": "img1.jpeg"
+  },
+  {
+    "animals": [
+      "mouse",
+      "crocodile"
+    ],
+    "file_name": "img2.jpeg"
+  },
+  {
+    "animals": [
+      "mouse",
+      "cat"
+    ],
+    "file_name": "img3.jpeg"
+  },
+  {
+    "animals": [
+      "mouse",
+      "giraffe"
+    ],
+    "file_name": "img4.jpeg"
+  },
+  {
+    "animals": [
+      "mouse",
+      "dog"
+    ],
+    "file_name": "img5.jpeg"
+  },
+  {
+    "animals": [
+      "mouse",
+      "elephant"
+    ],
+    "file_name": "img6.jpeg"
+  },
+  {
+    "animals": [
+      "leopard",
+      "crocodile"
+    ],
+    "file_name": "img7.jpeg"
+  },
+  {
+    "animals": [
+      "leopard",
+      "cat"
+    ],
+    "file_name": "img8.jpeg"
+  },
+  {
+    "animals": [
+      "leopard",
+      "giraffe"
+    ],
+    "file_name": "img9.jpeg"
+  },
+  {
+    "animals": [
+      "leopard",
+      "dog"
+    ],
+    "file_name": "img10.jpeg"
+  },
+  {
+    "animals": [
+      "leopard",
+      "elephant"
+    ],
+    "file_name": "img11.jpeg"
+  },
+  {
+    "animals": [
+      "crocodile",
+      "cat"
+    ],
+    "file_name": "img12.jpeg"
+  },
+  {
+    "animals": [
+      "crocodile",
+      "giraffe"
+    ],
+    "file_name": "img13.jpeg"
+  },
+  {
+    "animals": [
+      "crocodile",
+      "dog"
+    ],
+    "file_name": "img14.jpeg"
+  },
+  {
+    "animals": [
+      "crocodile",
+      "elephant"
+    ],
+    "file_name": "img15.jpeg"
+  },
+  {
+    "animals": [
+      "cat",
+      "giraffe"
+    ],
+    "file_name": "img16.jpeg"
+  },
+  {
+    "animals": [
+      "cat",
+      "dog"
+    ],
+    "file_name": "img17.jpeg"
+  },
+  {
+    "animals": [
+      "cat",
+      "elephant"
+    ],
+    "file_name": "img18.jpeg"
+  },
+  {
+    "animals": [
+      "giraffe",
+      "dog"
+    ],
+    "file_name": "img19.jpeg"
+  },
+  {
+    "animals": [
+      "giraffe",
+      "elephant"
+    ],
+    "file_name": "img20.jpeg"
+  },
+  {
+    "animals": [
+      "dog",
+      "elephant"
+    ],
+    "file_name": "img21.jpeg"
+  }
+]
