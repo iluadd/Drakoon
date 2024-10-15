@@ -29,7 +29,19 @@ random_int = random.randint(1, 4)
 # All messages here, but only most recent 150 are stored
 messages = deque(maxlen=12)
 users = {}
+
+@dataclass
+class Player:
+    # session_id: str
+    nickname : str
+    logged : bool = False
+    score : int = 0
+
+players_dict = dict()
+
+# session['sid'] : False
 user_logs = defaultdict(lambda: False)
+# session['sid'] : nickname
 user_names = dict()
 
 login_redir = RedirectResponse('/login', status_code=303)
@@ -40,14 +52,14 @@ score = 0
 @app.get("/")
 def home(session):
 
-    # register a user session
-    user_logs[session['sid']]
-
-    if not user_logs[session['sid']]:
+    # check user session id persist - redirect otherwise 
+    player_id = session['sid']
+    if player_id not in players_dict:
         return login_redir
 
-    inpHidden = Input(type="hidden", id="prompt2", name="username", value=user_names[session['sid']])
-    logname = P(user_names[session['sid']])
+
+    inpHidden = Input(type="hidden", id="prompt2", name="sessionid", value=session['sid'])
+    # logname = P(user_names[session['sid']])
 
     inp = Label(
         Div(
@@ -60,16 +72,12 @@ def home(session):
 
     return Title("Drakoon"), Div(
         H1("Guess the picture! What could it be?", cls="text-2xl font-bold pb-6"),
-        # Div(
-        #     Img(src=f"static/img{random_int}.png", cls='rounded border border-2 border-gray-600'),
-        #     id='pic'
-        # ),
         Div(
             Div(
-                Img(src=f"static/img{random_int}.png", cls='rounded border border-2 border-gray-600'),
-                Div("Score: 0", id="score", cls='pl-4'),  # Added score div here
+                Img(src=f"static/img{random_int}.png",id='picins', cls='rounded border border-2 border-gray-600'),
+                Div("Score: 0", id="score", cls='pl-4 min-w-[200px]'),  # Added score div here
                 cls='flex items-left',  # Flex container to align image and score side by side
-                id='picins',
+                # id='picins',
             ),
             id='pic',
             cls='flex justify-center'  # Center the picture and score div within the parent container
@@ -88,6 +96,8 @@ def home(session):
         ),
         cls='mx-auto max-w-lg px-6 pt-20 rounded-box',
     )
+
+## RENDERS
 
 def render_messages(messages):
     # Reverse the messages list
@@ -116,33 +126,41 @@ def render_messages(messages):
 #                 hx_swap_oob="outerHTML"
 #             )
 
-def render_new_pic(img_path, score):
-    return Div(
-                Img(src=img_path, cls='rounded border border-2 border-gray-600'),
-                Div(f"Score: {score}", id="score", cls='pl-4'),  # Added score div here
-                cls='flex items-left',  # Flex container to align image and score side by side
+def render_new_pic(img_path):
+    return Img(
+                src=img_path, 
+                id='picins', 
+                cls='rounded border border-2 border-gray-600',
                 hx_swap_oob="outerHTML",
-                id='picins',
             )
+
+def render_updated_score(score):
+    return Div(f"Score: {score}", 
+                id="score", 
+                cls='pl-4 min-w-[200px]'),
+
+## WEB-SOCKET 
 
 def on_connect(ws, send): 
         users[id(ws)] = send
 
-
 def on_disconnect(ws):users.pop(id(ws),None)
 
 @app.ws('/ws', conn=on_connect, disconn=on_disconnect)
-async def ws(msg:str,username:str, send):
+async def ws(msg:str, sessionid:str, send):
     # await send(mk_input()) # reset the input field immediately
     messages.append(msg) 
     global random_int
     global score
 
+    current_player = players_dict[sessionid]
+    username = current_player.nickname
+
     is_ok = False
     # check guess
     if data[f'img{random_int}'] == msg:
         messages[-1] = f"{username} : {messages[-1]} guess right"
-        score += 1
+        current_player.score += 1
         random_int = random.randint(1, 4)
         imgpath = f"static/img{random_int}.png"
         is_ok = True
@@ -152,7 +170,10 @@ async def ws(msg:str,username:str, send):
     for u in users.values():
         await u(render_messages(messages))
         if is_ok:
-            await u(render_new_pic(imgpath, score))
+            await u(render_new_pic(imgpath))
+            await u(render_updated_score(current_player.score))
+
+## LOGIN
 
 @app.get("/login")
 def login():
@@ -176,8 +197,10 @@ def loginname(logname : str, session):
         return login_redir
 
     # save name and register
-    user_names[session['sid']] = logname
-    user_logs[session['sid']] = True
+    players_dict[session['sid']] = Player(nickname=logname, logged=True)
+    
+    # user_names[session['sid']] = logname
+    # user_logs[session['sid']] = True
 
     return RedirectResponse('/', status_code=303)
 
