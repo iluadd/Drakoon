@@ -37,17 +37,10 @@ class Player:
     logged : bool = False
     score : int = 0
 
+# session_id : Player()
 players_dict = dict()
 
-# session['sid'] : False
-user_logs = defaultdict(lambda: False)
-# session['sid'] : nickname
-user_names = dict()
-
 login_redir = RedirectResponse('/login', status_code=303)
-
-#temp score
-score = 0
 
 @app.get("/")
 def home(session):
@@ -57,9 +50,7 @@ def home(session):
     if player_id not in players_dict:
         return login_redir
 
-
     inpHidden = Input(type="hidden", id="prompt2", name="sessionid", value=session['sid'])
-    # logname = P(user_names[session['sid']])
 
     inp = Label(
         Div(
@@ -109,22 +100,13 @@ def render_messages(messages):
         colors.append("red" if 'not' in m else "green")
 
     paragraphs = [
-        P(m, style=f'color: {color}') 
-        for m, color in zip(messages, colors)
+        P(m, style=f'color: {color}') for m, color in zip(messages, colors)
     ]
     return Div(*paragraphs, 
                 id='guessLog',
                 cls='py-6',
                 style='text-align: left',
             )
-
-# def render_new_pic(img_path):
-#     return Div(
-#                 Img(src=img_path),
-#                 id='pic',
-#                 cls='rounded border border-2 border-gray-600',
-#                 hx_swap_oob="outerHTML"
-#             )
 
 def render_new_pic(img_path):
     return Img(
@@ -134,8 +116,13 @@ def render_new_pic(img_path):
                 hx_swap_oob="outerHTML",
             )
 
-def render_updated_score(score):
-    return Div(f"Score: {score}", 
+def render_updated_score():
+    scores = [
+        Li(f"{plr_i.nickname} : {plr_i.score}") for sid, plr_i in players_dict.items() 
+    ]
+    print(scores)
+
+    return Div(Ul(*scores), 
                 id="score", 
                 cls='pl-4 min-w-[200px]'),
 
@@ -161,7 +148,7 @@ async def ws(msg:str, sessionid:str, send):
     if data[f'img{random_int}'] == msg:
         messages[-1] = f"{username} : {messages[-1]} guess right"
         current_player.score += 1
-        random_int = random.randint(1, 4)
+        random_int = random.randint(1, 4)    #TODO replace with function
         imgpath = f"static/img{random_int}.png"
         is_ok = True
     else:
@@ -171,7 +158,7 @@ async def ws(msg:str, sessionid:str, send):
         await u(render_messages(messages))
         if is_ok:
             await u(render_new_pic(imgpath))
-            await u(render_updated_score(current_player.score))
+            await u(render_updated_score())
 
 ## LOGIN
 
@@ -186,9 +173,12 @@ def login():
         cls='form-control w-full max-w-xs'
     )
     return Title("Drakoon"), \
-            Div(H1('Enter your details to start...', cls="text-2xl font-bold pb-6"),
-                 Form(action='/login', method='post')(Group(inpt)),
-                 cls="mx-auto max-w-sm px-6 pt-20 rounded-box")
+           Div(
+                H1('Enter your details to start...', 
+                    cls="text-2xl font-bold pb-6"),
+                Form(action='/login', method='post')(Group(inpt)),
+                cls="mx-auto max-w-sm px-6 pt-20 rounded-box"
+               )
 
 @app.post("/login")
 def loginname(logname : str, session):
@@ -198,9 +188,6 @@ def loginname(logname : str, session):
 
     # save name and register
     players_dict[session['sid']] = Player(nickname=logname, logged=True)
-    
-    # user_names[session['sid']] = logname
-    # user_logs[session['sid']] = True
 
     return RedirectResponse('/', status_code=303)
 
