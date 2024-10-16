@@ -64,7 +64,8 @@ def home(session):
     )
 
     return Title("Drakoon"), Div(
-        H1("Guess the picture! What could it be?", cls="text-2xl font-bold pb-6"),
+        # H1("Guess the picture! What could it be?", cls="text-2xl font-bold pb-6"),
+        H1("Guess what animals this hybrid consists of?", cls="text-2xl font-bold pb-6", style="font-size: 1.4rem;"),
         Div(
             Div(
                 Img(src=f"static/img{random_int}.jpeg",id='picins', cls='rounded border border-2 border-gray-600'),
@@ -97,11 +98,8 @@ def render_messages(messages):
     # Reverse the messages list
     messages = list(reversed(messages))
 
-    # green for right guess , otherwise red
     colors=[]
-    # for m in messages:
-    #     colors.append("red" if 'not' in m else "green")
-
+    # green for right guess ,orange on half otherwise red
     for m in messages:
         if 'one' in m: colors.append("orange")
         elif 'not' in m: colors.append("red")
@@ -157,7 +155,7 @@ async def ws(msg:str, sessionid:str, send):
     file_name = f"img{random_int}.jpeg"
     animals = get_animals(file_name, image_data)
     result = compare_animal_names(msg, animals[0], animals[1])
-    print(f"match result: {result}")
+    # print(f"match result: {result}")
 
     if result == "all equal":
         messages[-1] = f"{username} : {messages[-1]} guess right"
