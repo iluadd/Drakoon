@@ -3,7 +3,7 @@ import random
 from collections import deque
 import uuid
 import json
-from matchutils import get_animals,compare_animal_names
+from matchutils import get_animals_bypath,compare_animal_names,get_all_animals
 
 # css = Style(':root {--pico-font-size:82%,--pico-font-family: Pacifico, cursive; }')
 def before(session):
@@ -25,7 +25,7 @@ app.static_route_exts(static_path='.')
 with open('static/image_references.json', 'r') as file:
     image_data = json.load(file)
 
-IMAGES_NUMBER = 21
+IMAGES_NUMBER = 6
 random_int = random.randint(1, IMAGES_NUMBER)
 
 # All messages here, but only most recent 12 are stored
@@ -61,32 +61,41 @@ def home(session):
         cls='form-control'
     )
  
-    return Title("Drakoon"), Div(
-        H1("Can you guess the two animals in this hybrid?", cls="text-2xl font-bold pb-6", style="font-size: 1.3rem;"),
-        Div(
-            Div(
-                Img(src=f"static/img{random_int}.jpeg",id='picins', cls='rounded border border-2 border-gray-600'),
-                render_updated_score(),
-                cls='flex items-left',  # Flex container to align image and score side by side
-            ),
-            id='pic',
-            cls='flex justify-center'  # Center the picture and score div within the parent container
-        ),
-        Div(
-            Div(
-                Form(Group(inp,inpHidden), ws_send=True, cls=""),
-                hx_ext='ws', ws_connect='ws',
-                cls='pt-4 max-w-lg'
-            ),
-            Div(
-                id='guessLog',
-                cls='py-6',
-            ),
-            cls='',
-
-        ),
-        cls='mx-auto max-w-lg px-6 pt-20 rounded-box',
-    ), render_footer()
+    return Title("Drakoon"),Div(
+                                Div(
+                                    P('Can you guess the two animals in this hybrid?', cls='text-3xl font-bold text-center'),
+                                    cls='min-h-[100px] flex items-center justify-center'
+                                ),
+                                cls='gap-2 m-4'
+                            ),Div(
+                                Div(
+                                    render_animals_helper(),
+                                    cls='min-h-[100px] sm:text-right text-left text-gray-400'
+                                ),
+                                Div(
+                                    Img(src=f"static/img{random_int}.jpeg",id='picins', cls='rounded-lg border-2 border-gray-600'),
+                                    cls='min-h-[100px] flex justify-center'
+                                ),
+                                Div(
+                                    render_updated_score(),
+                                    cls='min-h-[100px] '
+                                ),
+                                cls='grid gap-2 m-4 sm:grid-cols-3'
+                            ),Div(
+                                Div(cls='min-h-[100px] sm:block hidden'),
+                                Div(
+                                    Form(Group(inp,inpHidden), ws_send=True, cls=""),
+                                    Div(
+                                        id='guessLog',
+                                        cls="py-2",
+                                    ),
+                                    hx_ext='ws', ws_connect='ws',
+                                    cls='pt-4 ',
+                                ),
+                                Div(cls='min-h-[100px] sm:block hidden'),
+                                cls='grid gap-2 m-4 sm:grid-cols-3'
+                            ),render_footer()
+    
 
 ## RENDERS
 def render_footer():
@@ -137,7 +146,6 @@ def render_messages(messages):
     ]
     return Div(*paragraphs, 
                 id='guessLog',
-                cls='py-6',
                 style='text-align: left',
             )
 
@@ -145,12 +153,11 @@ def render_new_pic(img_path):
     return Img(
                 src=img_path, 
                 id='picins', 
-                cls='rounded border border-2 border-gray-600',
+                cls='rounded border border-gray-600',
                 hx_swap_oob="outerHTML",
             )
 
 def render_updated_score():
-
     scores = [
         Li(f"{plr_i[0]} : {plr_i[1]}") 
         for plr_i in db.execute('SELECT NICKNAME, SCORE FROM players WHERE logged=1')
@@ -158,7 +165,15 @@ def render_updated_score():
 
     return Div(Ul(*scores), 
                 id="score", 
-                cls='pl-4 min-w-[200px]'),
+                cls='min-w-[200px] '),
+
+def render_animals_helper():
+    paragraphs = [
+        Li(f"{animal}") for animal in get_all_animals(image_data)
+    ]
+    return Div(Ul(*paragraphs), 
+                id="animals", 
+                cls='min-w-[200px] text-sm'),
 
 ## WEB-SOCKET 
 async def on_connect(ws, send): 
@@ -189,7 +204,7 @@ async def ws(msg:str, sessionid:str, send):
 
     # check guess
     file_name = f"img{random_int}.jpeg"
-    animals = get_animals(file_name, image_data)
+    animals = get_animals_bypath(file_name, image_data)
     result = compare_animal_names(msg, animals[0], animals[1])
 
     if result == "all equal":
@@ -201,8 +216,10 @@ async def ws(msg:str, sessionid:str, send):
         random_int = random.randint(1, IMAGES_NUMBER)    #TODO replace with function
         imgpath = f"static/img{random_int}.jpeg"
         is_ok = True
+
     elif result == "one animal match":
         messages[-1] = f"{username} : {messages[-1]} you guessed one animal"
+        
     else:
         messages[-1] = f"{username} : {messages[-1]} guess not right"
 
