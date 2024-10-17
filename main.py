@@ -32,7 +32,7 @@ random_int = random.randint(1, IMAGES_NUMBER)
 messages = deque(maxlen=12)
 users = {}
 
-# all player data here
+# all players data here
 db = database("db/players.db")
 players = db.t.players
 if players not in db.t:
@@ -86,7 +86,11 @@ def home(session):
 
         ),
         cls='mx-auto max-w-lg px-6 pt-20 rounded-box',
-    ),Footer(
+    ), render_footer()
+
+## RENDERS
+def render_footer():
+    return Footer(
             A(
                 Span('Made with', 
                     style='vertical-align: middle; color: #333;margin-right: 8px;'),
@@ -116,7 +120,6 @@ def home(session):
             onmouseout="this.style.backgroundColor='#ffffff';",
         )
 
-## RENDERS
 
 def render_messages(messages):
     # Reverse the messages list

@@ -1,6 +1,3 @@
-# Function to get animals for a specific file_name
-# Load JSON data from a file
-
 def get_animals(file_name, data):
     for entry in data:
         if entry["file_name"] == file_name:
