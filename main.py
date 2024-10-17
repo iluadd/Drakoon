@@ -32,15 +32,13 @@ random_int = random.randint(1, IMAGES_NUMBER)
 messages = deque(maxlen=12)
 users = {}
 
-@dataclass
-class Player:
-    # session_id: str
-    nickname : str
-    logged : bool = False
-    score : int = 0
-
-# session_id : Player()
-players_dict = dict()
+# all player data here
+db = database("db/players.db")
+players = db.t.players
+if players not in db.t:
+    players.create(sid=str, nickname=str, logged=bool, score=int, pk="sid")
+# Player type def
+Player = players.dataclass()
 
 login_redir = RedirectResponse('/login', status_code=303)
 
@@ -49,7 +47,7 @@ def home(session):
 
     # check user session id persist - redirect otherwise 
     player_id = session['sid']
-    if player_id not in players_dict:
+    if player_id not in players:
         return login_redir
 
     inpHidden = Input(type="hidden", id="prompt2", name="sessionid", value=session['sid'])
@@ -62,17 +60,14 @@ def home(session):
         ),
         cls='form-control'
     )
-
+ 
     return Title("Drakoon"), Div(
-        # H1("Guess the picture! What could it be?", cls="text-2xl font-bold pb-6"),
-        H1("Guess what animals this hybrid consists of?", cls="text-2xl font-bold pb-6", style="font-size: 1.4rem;"),
+        H1("Can you guess the two animals in this hybrid?", cls="text-2xl font-bold pb-6", style="font-size: 1.3rem;"),
         Div(
             Div(
                 Img(src=f"static/img{random_int}.jpeg",id='picins', cls='rounded border border-2 border-gray-600'),
-                # Div("Score: 0", id="score", cls='pl-4 min-w-[200px]'),  # Added score div here
                 render_updated_score(),
                 cls='flex items-left',  # Flex container to align image and score side by side
-                # id='picins',
             ),
             id='pic',
             cls='flex justify-center'  # Center the picture and score div within the parent container
@@ -87,10 +82,39 @@ def home(session):
                 id='guessLog',
                 cls='py-6',
             ),
-            cls=''
+            cls='',
+
         ),
         cls='mx-auto max-w-lg px-6 pt-20 rounded-box',
-    )
+    ),Footer(
+            A(
+                Span('Made with', 
+                    style='vertical-align: middle; color: #333;margin-right: 8px;'),
+                A(
+                    Img(src='https://docs.fastht.ml/logo.svg', 
+                        alt='fastHTML', 
+                        width='60', 
+                        height='60', 
+                        style='vertical-align: middle; margin-right: 5px;'),
+                    href='https://fastht.ml/',
+                    target='_blank'
+                ),
+                A(
+                    Img(src='https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png', 
+                        alt='GitHub', 
+                        width='25', 
+                        height='25', 
+                        style='vertical-align: middle; margin-right: 5px;'),
+                    href='https://github.com/iluadd/Drakoon',
+                    target='_blank'
+                ),
+                    target='_blank',
+                    style='display: flex; align-items: center; text-decoration: none;'
+            ),
+            style="position: fixed; bottom: 10px; right: 10px; display: flex; align-items: center; padding: 5px 10px; border-radius: 5px;",
+            onmouseover="this.style.backgroundColor='#e0e0e0';",
+            onmouseout="this.style.backgroundColor='#ffffff';",
+        )
 
 ## RENDERS
 
@@ -123,9 +147,10 @@ def render_new_pic(img_path):
             )
 
 def render_updated_score():
+
     scores = [
-        Li(f"{plr_i.nickname} : {plr_i.score}") 
-        for sid, plr_i in players_dict.items()
+        Li(f"{plr_i[0]} : {plr_i[1]}") 
+        for plr_i in db.execute('SELECT NICKNAME, SCORE FROM players WHERE logged=1')
         ]       
 
     return Div(Ul(*scores), 
@@ -133,11 +158,19 @@ def render_updated_score():
                 cls='pl-4 min-w-[200px]'),
 
 ## WEB-SOCKET 
+async def on_connect(ws, send): 
+    users[id(ws)] = send
 
-def on_connect(ws, send): 
-        users[id(ws)] = send
+    players.update(sid=ws.session["sid"], logged=True) # user Login
+    for user in users.values():
+        await user(render_updated_score())
 
-def on_disconnect(ws):users.pop(id(ws),None)
+async def on_disconnect(ws):
+    users.pop(id(ws),None)
+
+    players.update(sid=ws.session["sid"], logged=False) # user Logout
+    for user in users.values():
+        await user(render_updated_score())
 
 @app.ws('/ws', conn=on_connect, disconn=on_disconnect)
 async def ws(msg:str, sessionid:str, send):
@@ -146,7 +179,7 @@ async def ws(msg:str, sessionid:str, send):
     global random_int
     global score
 
-    current_player = players_dict[sessionid]
+    current_player = players[sessionid]
     username = current_player.nickname
 
     is_ok = False
@@ -155,11 +188,13 @@ async def ws(msg:str, sessionid:str, send):
     file_name = f"img{random_int}.jpeg"
     animals = get_animals(file_name, image_data)
     result = compare_animal_names(msg, animals[0], animals[1])
-    # print(f"match result: {result}")
 
     if result == "all equal":
         messages[-1] = f"{username} : {messages[-1]} guess right"
-        current_player.score += 1
+        
+        current_player.score = current_player.score + 1
+        players.update(sid=sessionid,  score=current_player.score)
+
         random_int = random.randint(1, IMAGES_NUMBER)    #TODO replace with function
         imgpath = f"static/img{random_int}.jpeg"
         is_ok = True
@@ -201,7 +236,7 @@ def loginname(logname : str, session):
         return login_redir
 
     # save name and register
-    players_dict[session['sid']] = Player(nickname=logname, logged=True)
+    players.insert(Player(session['sid'], logname, True, score=0))
 
     return RedirectResponse('/', status_code=303)
 
