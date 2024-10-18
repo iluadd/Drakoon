@@ -4,7 +4,13 @@
       "mouse",
       "dog",
       "cat",
-      "frog"
+      "frog",
+      "crocodile",
+      "giraffe",
+      "zebra",
+      "penguin",
+      "lion",
+      "flamingo"
     ]
   },
   {
@@ -12,41 +18,314 @@
       "mouse",
       "dog"
     ],
-    "file_name": "img1.png"
+    "file_name": "img1.jpeg"
   },
   {
     "animals": [
       "mouse",
       "cat"
     ],
-    "file_name": "img2.png"
+    "file_name": "img2.jpeg"
   },
   {
     "animals": [
       "mouse",
       "frog"
     ],
-    "file_name": "img3.png"
+    "file_name": "img3.jpeg"
+  },
+  {
+    "animals": [
+      "mouse",
+      "crocodile"
+    ],
+    "file_name": "img4.jpeg"
+  },
+  {
+    "animals": [
+      "mouse",
+      "giraffe"
+    ],
+    "file_name": "img5.jpeg"
+  },
+  {
+    "animals": [
+      "mouse",
+      "zebra"
+    ],
+    "file_name": "img6.jpeg"
+  },
+  {
+    "animals": [
+      "mouse",
+      "penguin"
+    ],
+    "file_name": "img7.jpeg"
+  },
+  {
+    "animals": [
+      "mouse",
+      "lion"
+    ],
+    "file_name": "img8.jpeg"
+  },
+  {
+    "animals": [
+      "mouse",
+      "flamingo"
+    ],
+    "file_name": "img9.jpeg"
   },
   {
     "animals": [
       "dog",
       "cat"
     ],
-    "file_name": "img4.png"
+    "file_name": "img10.jpeg"
   },
   {
     "animals": [
       "dog",
       "frog"
     ],
-    "file_name": "img5.png"
+    "file_name": "img11.jpeg"
+  },
+  {
+    "animals": [
+      "dog",
+      "crocodile"
+    ],
+    "file_name": "img12.jpeg"
+  },
+  {
+    "animals": [
+      "dog",
+      "giraffe"
+    ],
+    "file_name": "img13.jpeg"
+  },
+  {
+    "animals": [
+      "dog",
+      "zebra"
+    ],
+    "file_name": "img14.jpeg"
+  },
+  {
+    "animals": [
+      "dog",
+      "penguin"
+    ],
+    "file_name": "img15.jpeg"
+  },
+  {
+    "animals": [
+      "dog",
+      "lion"
+    ],
+    "file_name": "img16.jpeg"
+  },
+  {
+    "animals": [
+      "dog",
+      "flamingo"
+    ],
+    "file_name": "img17.jpeg"
   },
   {
     "animals": [
       "cat",
       "frog"
     ],
-    "file_name": "img6.png"
+    "file_name": "img18.jpeg"
+  },
+  {
+    "animals": [
+      "cat",
+      "crocodile"
+    ],
+    "file_name": "img19.jpeg"
+  },
+  {
+    "animals": [
+      "cat",
+      "giraffe"
+    ],
+    "file_name": "img20.jpeg"
+  },
+  {
+    "animals": [
+      "cat",
+      "zebra"
+    ],
+    "file_name": "img21.jpeg"
+  },
+  {
+    "animals": [
+      "cat",
+      "penguin"
+    ],
+    "file_name": "img22.jpeg"
+  },
+  {
+    "animals": [
+      "cat",
+      "lion"
+    ],
+    "file_name": "img23.jpeg"
+  },
+  {
+    "animals": [
+      "cat",
+      "flamingo"
+    ],
+    "file_name": "img24.jpeg"
+  },
+  {
+    "animals": [
+      "frog",
+      "crocodile"
+    ],
+    "file_name": "img25.jpeg"
+  },
+  {
+    "animals": [
+      "frog",
+      "giraffe"
+    ],
+    "file_name": "img26.jpeg"
+  },
+  {
+    "animals": [
+      "frog",
+      "zebra"
+    ],
+    "file_name": "img27.jpeg"
+  },
+  {
+    "animals": [
+      "frog",
+      "penguin"
+    ],
+    "file_name": "img28.jpeg"
+  },
+  {
+    "animals": [
+      "frog",
+      "lion"
+    ],
+    "file_name": "img29.jpeg"
+  },
+  {
+    "animals": [
+      "frog",
+      "flamingo"
+    ],
+    "file_name": "img30.jpeg"
+  },
+  {
+    "animals": [
+      "crocodile",
+      "giraffe"
+    ],
+    "file_name": "img31.jpeg"
+  },
+  {
+    "animals": [
+      "crocodile",
+      "zebra"
+    ],
+    "file_name": "img32.jpeg"
+  },
+  {
+    "animals": [
+      "crocodile",
+      "penguin"
+    ],
+    "file_name": "img33.jpeg"
+  },
+  {
+    "animals": [
+      "crocodile",
+      "lion"
+    ],
+    "file_name": "img34.jpeg"
+  },
+  {
+    "animals": [
+      "crocodile",
+      "flamingo"
+    ],
+    "file_name": "img35.jpeg"
+  },
+  {
+    "animals": [
+      "giraffe",
+      "zebra"
+    ],
+    "file_name": "img36.jpeg"
+  },
+  {
+    "animals": [
+      "giraffe",
+      "penguin"
+    ],
+    "file_name": "img37.jpeg"
+  },
+  {
+    "animals": [
+      "giraffe",
+      "lion"
+    ],
+    "file_name": "img38.jpeg"
+  },
+  {
+    "animals": [
+      "giraffe",
+      "flamingo"
+    ],
+    "file_name": "img39.jpeg"
+  },
+  {
+    "animals": [
+      "zebra",
+      "penguin"
+    ],
+    "file_name": "img40.jpeg"
+  },
+  {
+    "animals": [
+      "zebra",
+      "lion"
+    ],
+    "file_name": "img41.jpeg"
+  },
+  {
+    "animals": [
+      "zebra",
+      "flamingo"
+    ],
+    "file_name": "img42.jpeg"
+  },
+  {
+    "animals": [
+      "penguin",
+      "lion"
+    ],
+    "file_name": "img43.jpeg"
+  },
+  {
+    "animals": [
+      "penguin",
+      "flamingo"
+    ],
+    "file_name": "img44.jpeg"
+  },
+  {
+    "animals": [
+      "lion",
+      "flamingo"
+    ],
+    "file_name": "img45.jpeg"
   }
 ]

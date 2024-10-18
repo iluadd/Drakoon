@@ -10,14 +10,23 @@ def before(session):
     if not 'sid' in session: session['sid'] = str(uuid.uuid4())
 bware = Beforeware(before, skip=[r'/favicon/.ico', r'/static/.*', r'.*\.css', '/data/images/.*'])
 
-app = FastHTMLWithLiveReload(ws_hdr=True,
-                            before=bware,
-                            pico=False,
-                            hdrs=(
-                                Script(src="https://cdn.tailwindcss.com"),
-                                Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/daisyui@4.11.1/dist/full.min.css"),
-                                Script(src="autoscroll.js")),
-                            )
+# app = FastHTMLWithLiveReload(ws_hdr=True,
+#                             before=bware,
+#                             pico=False,
+#                             hdrs=(
+#                                 Script(src="https://cdn.tailwindcss.com"),
+#                                 Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/daisyui@4.11.1/dist/full.min.css"),
+#                                 Script(src="autoscroll.js")),
+#                             )
+
+app = FastHTML(ws_hdr=True,
+                before=bware,
+                pico=False,
+                hdrs=(
+                    Script(src="https://cdn.tailwindcss.com"),
+                    Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/daisyui@4.11.1/dist/full.min.css"),
+                    Script(src="autoscroll.js")),
+                )
 
 app.static_route_exts(static_path='.')
 
@@ -25,7 +34,7 @@ app.static_route_exts(static_path='.')
 with open('static/image_references.json', 'r') as file:
     image_data = json.load(file)
 
-IMAGES_NUMBER = 6
+IMAGES_NUMBER = 45
 random_int = random.randint(1, IMAGES_NUMBER)
 
 # All messages here, but only most recent 12 are stored
@@ -70,17 +79,17 @@ def home(session):
                             ),Div(
                                 Div(
                                     render_animals_helper(),
-                                    cls='min-h-[100px] sm:text-right text-left text-gray-400'
+                                    cls='min-h-[100px] sm:text-right text-left text-gray-400 sm:col-span-3'
                                 ),
                                 Div(
                                     Img(src=f"static/img{random_int}.jpeg",id='picins', cls='rounded-lg border-2 border-gray-600'),
-                                    cls='min-h-[100px] flex justify-center'
+                                    cls='min-h-[100px] flex justify-center sm:col-span-6'
                                 ),
                                 Div(
                                     render_updated_score(),
-                                    cls='min-h-[100px] '
+                                    cls='min-h-[100px] sm:col-span-3'
                                 ),
-                                cls='grid gap-2 m-4 sm:grid-cols-3'
+                                cls='grid gap-2 m-4 sm:grid-cols-12'
                             ),Div(
                                 Div(cls='min-h-[100px] sm:block hidden'),
                                 Div(
@@ -260,4 +269,5 @@ def loginname(logname : str, session):
 
     return RedirectResponse('/', status_code=303)
 
-serve(reload_includes=["*.css"])
+# serve(reload_includes=["*.css"])
+serve()
